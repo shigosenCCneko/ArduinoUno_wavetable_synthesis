@@ -14,11 +14,11 @@ void setup() {
   ENVTONE.midi_setwave(FM2OP);        //
   ENVTONE.midi_set_envelope(12,9,25,2,8);  
   
-  ENVTONE.set_midistate(MIDI_MONO);     //4chモノフォニック
-  ENVTONE.set_wave(1,TRI);              //ch1を三角波へ
-  ENVTONE.set_wave(2,TRI);
-  ENVTONE.set_wave(3,SIN);
-  ENVTONE.set_envelope(3,8,9,25,2,5);
+//  ENVTONE.set_midistate(MIDI_MONO);     //4chモノフォニック
+//  ENVTONE.set_wave(1,TRI);              //ch1を三角波へ
+//  ENVTONE.set_wave(2,TRI);
+//  ENVTONE.set_wave(3,SIN);
+//  ENVTONE.set_envelope(3,8,9,25,2,5);
 
 }
 
