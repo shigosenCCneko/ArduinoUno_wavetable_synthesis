@@ -276,9 +276,6 @@ endloop:
  #endif
   sts OCR2B, r18
 
-.rept 90
-nop
-.endr
 
 
   pop r19
