@@ -35,8 +35,11 @@ const  char EnvTone::wave_tri[WAVE_TBL_SIZE]  PROGMEM = {
   0, -1, -3, -5, -7, -9, -11, -13, -15, -17, -19, -21, -23, -25, -27, -29,
   -31, -29, -27, -25, -23, -21, -19, -17, -15, -13, -11, -9, -7, -5, -3, -1,
 };
+const  char EnvTone::wave_2OP2[WAVE_TBL_SIZE]  PROGMEM = {
 
+0,11,21,29,31,29,25,21,17,17,17,19,21,23,28,30,31,30,28,23,21,19,17,17,17,21,25,29,31,29,21,11,0,-11,-21,-29,-31,-29,-25,-21,-17,-17,-17,-19,-21,-23,-28,-30,-31,-30,-28,-23,-21,-19,-17,-17,-17,-21,-25,-29,-31,-29,-21,-11
 
+};
 
 
 
@@ -64,9 +67,11 @@ EnvTone::setup_hardware() {
   TCCR1B = 0;
   TCNT1 = 0;
 
-
-//  OCR1A = 499; //32KHz
+#ifdef USE_32KHZ
+  OCR1A = 499; //32KHz
+#else
   OCR1A = 999; //16KHz
+#endif
 
   TCCR1A = (1 << COM1A0);
   TCCR1B = (1 << WGM12) | (1 << CS10);
@@ -100,6 +105,9 @@ EnvTone::set_wave(uint8_t ch , wavetype i) {
       break;
     case TRI:
       wave = wave_tri;
+      break;
+    case FM2OP2:
+      wave = wave_2OP2;
       break;
     default:
       break;

@@ -1,6 +1,6 @@
 #include "memtone.h"
+#include "envtone_def.h"
 
-#define MAX_TONE 4
 #define WAVE_TBL_SIZE  64
 
 
@@ -8,7 +8,7 @@
 
 
 enum midistat{MIDI_POLY,MIDI_MONO};
-enum wavetype {SIN, FM2OP, RECT, TRI};
+enum wavetype {SIN, FM2OP, RECT, TRI, FM2OP2};
 
 class EnvTone
 {
@@ -18,7 +18,7 @@ class EnvTone
     static const  char wave_2OP[];
     static const  char wave_rect[];
     static const  char wave_tri[];
-
+    static const  char wave_2OP2[];
   private:
     /* MIDI ポリフォニック発音割り振り用　*/
     uint8_t queue_cnt = 0;

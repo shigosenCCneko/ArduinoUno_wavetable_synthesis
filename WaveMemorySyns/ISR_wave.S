@@ -4,7 +4,7 @@
  */
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
+#include "envtone_def.h"
 
 .extern memtone
 .extern wave_tbl
@@ -80,7 +80,11 @@ TIMER1_COMPA_vect:
 
   
   lds r17,wait_cnt
+#ifdef USE_32KHZ
+  subi r17,32
+#else
   subi r17,64
+#endif
   sts wait_cnt,r17
 
 
@@ -272,7 +276,9 @@ endloop:
  #endif
   sts OCR2B, r18
 
-
+.rept 90
+nop
+.endr
 
 
   pop r19

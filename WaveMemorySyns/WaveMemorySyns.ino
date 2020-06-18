@@ -11,7 +11,7 @@ void setup() {
 // Serial.begin(2000000);
   ENVTONE.setup_hardware();
   ENVTONE.set_midistate(MIDI_POLY);    //４声ポリフォニック
-  ENVTONE.midi_setwave(FM2OP);        //
+  ENVTONE.midi_setwave(FM2OP2);        //
   ENVTONE.midi_set_envelope(12,9,25,2,8);  
   
 //  ENVTONE.set_midistate(MIDI_MONO);     //4chモノフォニック
