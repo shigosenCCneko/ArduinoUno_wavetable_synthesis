@@ -56,7 +56,7 @@ EnvTone::setup_hardware() {
   DDRD |= 0x08;
   TCCR2A = 0x0;
   TCCR2B = 0x0;
-  TCCR2A = (1 << COM2B1) | (1 << COM2B0) | (0 << WGM21) | (1 << WGM20);
+  TCCR2A = (1 << COM2B1) | (1 << COM2B0) | (1 << WGM21) | (1 << WGM20);
   TCCR2B = (0 << CS21) | (1 << CS20) | (0 << WGM22);
 
   /* Timer 1 CTC mode clkI/O */
