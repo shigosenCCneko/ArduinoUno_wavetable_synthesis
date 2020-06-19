@@ -39,7 +39,8 @@
 #define F_SUS  3
 #define F_REL  4
 
-
+#define TOTAL_OUT r18
+#define CHANNEL_OUT r19
 
 .section .data
 wait_cnt: .dc.b  0        //エンベロープのウェイト用カウンタ
@@ -65,8 +66,8 @@ TIMER1_COMPA_vect:
   push ZH
   push r16
   push r17
-  push r18
-  push r19
+  push TOTAL_OUT
+  push CHANNEL_OUT
   
 
 
@@ -76,7 +77,7 @@ TIMER1_COMPA_vect:
   out _SFR_IO_ADDR(SPDR), ZL 
 #endif
  ldi XL,MAX_TONE - 1     ;loop conter
- clr r18
+ clr TOTAL_OUT
 
   
   lds r17,wait_cnt
@@ -86,14 +87,20 @@ TIMER1_COMPA_vect:
   subi r17,64
 #endif
   sts wait_cnt,r17
+//
+  ldi YL,lo8(memtone)
+  ldi YH,hi8(memtone)
+  
 
 
 loop:
-  ldi XH,SIZEOF_MEMTONE     
-  mul XH,XL
-  movw YL,r0
-  subi YL,lo8(-(memtone))   //Y index of memtone head
-  sbci YH,hi8(-(memtone))
+
+    
+//  ldi XH,SIZEOF_MEMTONE     
+//  mul XH,XL
+//  movw YL,r0
+//  subi YL,lo8(-(memtone))   //Y index of memtone head
+//  sbci YH,hi8(-(memtone))
 
   ldd ZL, Y+SIN_POSH     //Zレジスタを逆に使い　読み出しポインタ加算
   ldd ZH, Y+SIN_POSL
@@ -108,26 +115,26 @@ loop:
   clr ZH                  //Read sin table from tone pointer
 //  subi ZL, lo8(-(wave_tbl))
 //  sbci ZH, hi8(-(wave_tbl))
-//  ld r19, Z
+//  ld CHANNEL_OUT, Z
     ldd r16,Y+WAVE_TBLL
     ldd r17,Y+WAVE_TBLH
     add ZL,r16
     adc ZH,r17
-    //ld r19,Z
-    lpm r19,Z         //波形をPROGMEMで置いている場合
+    //ld CHANNEL_OUT,Z
+    lpm CHANNEL_OUT,Z         //波形をPROGMEMで置いている場合
     
   // volume
-  subi r19,(-31)
+  subi CHANNEL_OUT,(-31)
   ldi ZL,63
   ldd  r16, Y + VOL
   muls r16,ZL
   movw ZL,r0
   clr r0
-  add ZL,r19
+  add ZL,CHANNEL_OUT
   adc ZH,r0
   subi ZL,lo8(-(conv_vol ))
   sbci ZH,hi8(-(conv_vol ))
-  lpm r19,Z
+  lpm CHANNEL_OUT,Z
 
 
 //------- envelope   --- r16  level  r17 env_cnt  ----------------------
@@ -249,37 +256,41 @@ STOP_TONE:
 
  ENV_LEVEL:  
 
-   subi r19,(-31);
+   subi CHANNEL_OUT,(-31);
   ldi ZL,63
   mul r16,ZL
   movw ZL,r0
   clr r0
-  add ZL,r19
+  add ZL,CHANNEL_OUT
   adc ZH,r0
   subi ZL,lo8(-(conv_vol))
   sbci ZH,hi8(-(conv_vol))
-  lpm r19,Z 
+  lpm CHANNEL_OUT,Z 
   
 
 
-  add r18,r19
+  add TOTAL_OUT,CHANNEL_OUT
+
+    subi YL,lo8(-(SIZEOF_MEMTONE))
+    sbci YH,hi8(-(SIZEOF_MEMTONE))
+
 
   subi XL,(1)
   brcs  endloop
   jmp loop
 endloop:
    
-  subi r18, (-128)
+  subi TOTAL_OUT, (-128)
   
  #ifdef USE_DAC
-  out _SFR_IO_ADDR(SPDR), r18
+  out _SFR_IO_ADDR(SPDR), TOTAL_OUT
  #endif
-  sts OCR2B, r18
+  sts OCR2B, TOTAL_OUT
 
 
 
-  pop r19
-  pop r18
+  pop CHANNEL_OUT
+  pop TOTAL_OUT
   pop r17
   pop r16
   pop ZH
