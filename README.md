@@ -4,7 +4,7 @@ ArduinoUnoで波形メモリ音源を実現するライブラリとスケッチ�
 ##  仕様
 
 Timer1を使いサンプリング周波数16KHz,32Khzサンプル数64の波形データを  
-4チャンネル合成して、Timer2を使ったPWM(Pinn3)から出力します  
+4チャンネル合成して、Timer2を使ったPWM(Pin3)から出力します  
 波形は各チャンネルごとに4種類から選択可
 サンプリング周波数はデフォルト16KHZ  
 同時発音数と共に"envtone_def.h"で定義
@@ -28,10 +28,10 @@ Timer1を使いサンプリング周波数16KHz,32Khzサンプル数64の波形�
 
 #### ENVTONE.setup_hardware()
     タイマ等ハードウェアの設定
-#### ENVTONE.midistate(midi type) 
+#### ENVTONE.midistate(miditype) 
     miditype:  
             MIDI_POLY  MIDIチャンネル1 4音ポリフォニックモード
-            MIDI_MONO  MIDIチャンネル1～4　モノフォニックモード
+            MIDI_MONO  MIDIチャンネル1～4 モノフォニックモード
 #### ENVTONE.midi_setwafe(wavetype)
     wavetype:
             SIN     sin波
@@ -42,10 +42,10 @@ Timer1を使いサンプリング周波数16KHz,32Khzサンプル数64の波形�
 
     *波形データはenvtone.cppでcharの64byteの配列に置いていますので
     　適当なデータに置き換えて鳴らせます。
-#### ENVTONE.midi_setenvelope(atk,decey,sustai level,sutain,release)
-    ポリフォニックモード用に４ｃｈすべてのエンベロープを設定します
+#### ENVTONE.midi_setenvelope(atk, decey, sustain level, sutain, release)
+    ポリフォニックモード用に4chすべてのエンベロープを設定します
 
-#### ENVTONE.set_wave(ch,wavetpe)
+#### ENVTONE.set_wave(ch, wavetype)
     指定chにwavetypeを設定
 
 #### ENVTONE..midi_command(com, dat1, dat2, dat3)
@@ -56,9 +56,9 @@ Timer1を使いサンプリング周波数16KHz,32Khzサンプル数64の波形�
 
 ### チャンネル指定
 
-#### ENVTONE.set_envelope(ch,atk,decey,sustai level,sutain,release)
+#### ENVTONE.set_envelope(ch, atk, decey, sustain level, sutain, release)
     指定chにエンヴェロープを設定
-#### ENVTONE.note_on(ch,note no,vel)
+#### ENVTONE.note_on(ch, note no, vel)
     チャンネル指定NOTE_ON
 #### ENVTONE.note_off(ch)
     チャンネル指定NOTE_OFF
