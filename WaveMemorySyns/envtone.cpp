@@ -6,7 +6,7 @@
 #define MIDI_NOTE_OFF        0x80
 #define MIDI_NOTE_ON         0x90
 
-EnvTone ENVTONE;            //
+EnvTone ENVTONE;
 MemTone memtone[MAX_TONE];  //アセンブラからアクセスする
 
 
@@ -122,7 +122,7 @@ EnvTone::midi_setwave(wavetype wave) {
 }
 
 EnvTone::set_envelope(uint8_t ch, uint8_t atk, uint8_t decy, uint8_t sul, uint8_t sus, uint8_t rel){
-  ch &= 0x03;
+  ch &= 0x0F;
   atk &= 0x0f;
   decy &= 0x0f;
   sul &= 0x1f;
