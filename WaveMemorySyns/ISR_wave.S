@@ -157,24 +157,7 @@ DO_ENVCHG:
   rjmp ENV_LEVEL
 
   
-ATK_FASE:
-  ldd XH,Y+ATK
-  sub r17,XH
-  brcs DO_ATK_INC
-  std Y + ENV_CNT,r17
-  rjmp ENV_LEVEL
 
-DO_ATK_INC:
-  ldi r17,250
-  std Y+ENV_CNT,r17
-  inc r16
-  std Y+LEVEL,r16
-  cpi r16,(31)
-  brne CONTINUE_ATK
-  ldi r17,F_DECY       // set decay fase
-  std Y+ENV_STATE,r17
-CONTINUE_ATK:
-  rjmp ENV_LEVEL
   
   
 DECY_FASE:
@@ -191,10 +174,9 @@ DO_DECY_DEC:
   std Y+LEVEL,r16
   ldd XH,Y+SUL   //compare sustain level
   cp r16,XH
-  brne CONTINUE_DECY
+  brne ENV_LEVEL
   ldi r17,F_SUS         //set sustain fase
   std Y+ENV_STATE,r17
-CONTINUE_DECY:
   rjmp ENV_LEVEL
 
 
@@ -209,16 +191,10 @@ DO_SUS_DEC:
   ldi r17,250
   std Y+ENV_CNT,r17
   cpi r16,(0)
-  breq CONTINUE_SUS 
+  breq STOP_TONE 
   dec r16
   std Y+LEVEL,r16
   rjmp ENV_LEVEL
-  
-CONTINUE_SUS:
-  clr r17
-  std Y+SIN_STEPL,r17
-  std Y+SIN_STEPH,r17
-   rjmp ENV_LEVEL
 
 REL_FASE:
   ldd XH,Y+REL
@@ -227,7 +203,7 @@ REL_FASE:
   std Y+ENV_CNT,r17
   rjmp ENV_LEVEL
 
-DO_REL_DEC:
+DO_REL_DEC:           
   ldi r17,250
   std Y+ENV_CNT,r17
   cpi r16,(0)
@@ -236,12 +212,34 @@ DO_REL_DEC:
   std Y+LEVEL,r16
   sbi 11,2
   rjmp ENV_LEVEL
-  
+
 STOP_TONE:
   clr r17
   std Y+SIN_STEPL,r17
   std Y+SIN_STEPH,r17 
   rjmp ENV_LEVEL
+
+  
+
+DO_ATK_INC:
+  ldi r17,250
+  std Y+ENV_CNT,r17
+  inc r16
+  std Y+LEVEL,r16
+  cpi r16,(31)
+  brne ENV_LEVEL
+  ldi r17,F_DECY       // set decay fase
+  std Y+ENV_STATE,r17
+  rjmp ENV_LEVEL
+
+  
+ATK_FASE:
+  ldd XH,Y+ATK
+  sub r17,XH
+  brcs DO_ATK_INC
+  std Y + ENV_CNT,r17
+//  rjmp ENV_LEVEL    //このrjmpを減らすのに一番効果のあるのはAtkのここ
+  
 
 ENV_LEVEL:  
   subi CHANNEL_OUT,(-31);
@@ -299,7 +297,6 @@ endloop:
 
 
 // 除算テーブル
-.global conv_vol
 .global conv_vol   //アドレス計算高速化の為 conv_vol[64][32]
 conv_vol: 
 .dc.b    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,0
