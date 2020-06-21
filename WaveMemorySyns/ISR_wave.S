@@ -151,12 +151,27 @@ DO_ENVCHG:
   cpi XH,F_SUS
   breq SUS_FASE
   
-  cpi XH,F_REL
-  breq REL_FASE
-  
+//  cpi XH,F_REL
+//  breq REL_FASE
+//  
+//  rjmp ENV_LEVEL
+
+REL_FASE:
+  ldd XH,Y+REL
+  sub r17,XH
+  brcs DO_REL_DEC
+  std Y+ENV_CNT,r17
   rjmp ENV_LEVEL
 
-  
+DO_REL_DEC:           
+  ldi r17,250
+  std Y+ENV_CNT,r17
+  cpi r16,(0)
+  breq STOP_TONE 
+  dec r16
+  std Y+LEVEL,r16
+  sbi 11,2
+  rjmp ENV_LEVEL  
 
   
   
@@ -196,22 +211,7 @@ DO_SUS_DEC:
   std Y+LEVEL,r16
   rjmp ENV_LEVEL
 
-REL_FASE:
-  ldd XH,Y+REL
-  sub r17,XH
-  brcs DO_REL_DEC
-  std Y+ENV_CNT,r17
-  rjmp ENV_LEVEL
 
-DO_REL_DEC:           
-  ldi r17,250
-  std Y+ENV_CNT,r17
-  cpi r16,(0)
-  breq STOP_TONE 
-  dec r16
-  std Y+LEVEL,r16
-  sbi 11,2
-  rjmp ENV_LEVEL
 
 STOP_TONE:
   clr r17
