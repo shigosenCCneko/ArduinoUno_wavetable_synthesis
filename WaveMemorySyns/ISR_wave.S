@@ -277,8 +277,17 @@ endloop:
  #ifdef USE_DAC
   out _SFR_IO_ADDR(SPDR), TOTAL_OUT
  #endif
-  sts OCR2B, TOTAL_OUT
 
+/* PWM OUTPUT */
+#if (PWM_PIN == 3)
+  sts OCR2B, TOTAL_OUT
+#elif (PWM_PIN == 11)
+  sts OCR2A, TOTAL_OUT
+#elif (PWM_PIN == 5)
+  sts OCR0B, TOTAL_OUT
+#elif( PWM_PIN == 6)
+  sts OCR0A, TOTAL_OUT
+#endif
 
   pop r20
   pop CHANNEL_OUT

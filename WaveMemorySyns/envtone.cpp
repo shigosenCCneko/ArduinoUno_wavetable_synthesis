@@ -55,12 +55,40 @@ EnvTone::EnvTone() {
 
 EnvTone::setup_hardware() {
   /* Use PWM OUTPUT */
-  //pinMode(3, OUTPUT);   //PWM　OCR2B出力
+#if (PWM_PIN == 3)
+  //pinMode(3, OUTPUT);   //PWM　OCR2B出力  PD3
   DDRD |= 0x08;
   TCCR2A = 0x0;
   TCCR2B = 0x0;
   TCCR2A = (1 << COM2B1) | (1 << COM2B0) | (1 << WGM21) | (1 << WGM20);
   TCCR2B = (0 << CS21) | (1 << CS20) | (0 << WGM22);
+
+#elif (PWM_PIN == 11)
+  //pinMode(11, OUTPUT);   //PWM　OCR2A出力 PB3
+  DDRB |= 0x8;
+  TCCR2A = 0x0;
+  TCCR2B = 0x0;
+  TCCR2A = (1 << COM2A1) | (1 << COM2A0) | (1 << WGM21) | (1 << WGM20);
+  TCCR2B = (0 << CS21) | (1 << CS20) | (0 << WGM22);
+
+#elif (PWM_PIN == 5) 
+  //pinMode(5, OUTPUT);   //PWM　OCR0B出力 PD5
+  TIMSK0 = 0;
+  DDRD |= 0x20;
+  TCCR0A = 0x0;
+  TCCR0B = 0x0;
+  TCCR0A = (1 << COM0B1) | (1 << COM0B0) | (1 << WGM01) | (1 << WGM00);
+  TCCR0B = (0 << CS01) | (1 << CS00) | (0 << WGM02);
+
+#elif (PWM_PIN == 6)
+    //pinMode(6, OUTPUT);   //PWM　OCR0A出力 PD6
+  TIMSK0 = 0;
+  DDRD |= 0x40;
+  TCCR0A = 0x0;
+  TCCR0B = 0x0;
+  TCCR0A = (1 << COM0A1) | (1 << COM0A0) | (1 << WGM01) | (1 << WGM00);
+  TCCR0B = (0 << CS01) | (1 << CS00) | (0 << WGM02);
+#endif
 
   /* Timer 1 CTC mode clkI/O */
   TCCR1A = 0;
