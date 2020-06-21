@@ -82,7 +82,7 @@ EnvTone::setup_hardware() {
 
 
 EnvTone::note_on(uint8_t ch, uint8_t no, uint8_t vel) {
-  ch &= 0x03;
+  ch &= 0x0f;
   memtone[ch].tone_on(no, vel >> 2);
 
 }

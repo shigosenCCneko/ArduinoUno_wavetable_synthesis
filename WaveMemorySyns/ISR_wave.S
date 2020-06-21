@@ -48,8 +48,6 @@ wait_cnt: .dc.b  0        //エンベロープのウェイト用カウンタ
 
 .section .text
 
-
-
 .global TIMER1_COMPA_vect
 TIMER1_COMPA_vect:
 .func
@@ -69,7 +67,6 @@ TIMER1_COMPA_vect:
   push TOTAL_OUT
   push CHANNEL_OUT
   push r20
-  
 
 
 #ifdef USE_DAC
@@ -80,9 +77,8 @@ TIMER1_COMPA_vect:
 
  ldi XL,MAX_TONE - 1     ;loop conter
  clr TOTAL_OUT
-
-  
-  lds r20,wait_cnt
+ lds r20,wait_cnt
+ 
 #ifdef USE_32KHZ
   subi r20,32
 #else
@@ -128,14 +124,11 @@ loop:
   sbci ZH,hi8(-(conv_vol ))
   lpm CHANNEL_OUT,Z
 
-
 //------- envelope   --- r16  level  r17 env_cnt  ----------------------
   ldd r16,Y + LEVEL
    cpi r20,(0)
    breq DO_ENVCHG
    rjmp ENV_LEVEL   
-
-
   
 DO_ENVCHG:
 
@@ -153,7 +146,6 @@ DO_ENVCHG:
   
 //  cpi XH,F_REL
 //  breq REL_FASE
-//  
 //  rjmp ENV_LEVEL
 
 REL_FASE:
@@ -172,8 +164,6 @@ DO_REL_DEC:
   std Y+LEVEL,r16
   sbi 11,2
   rjmp ENV_LEVEL  
-
-  
   
 DECY_FASE:
   ldd XH,Y+DECY
@@ -194,7 +184,6 @@ DO_DECY_DEC:
   std Y+ENV_STATE,r17
   rjmp ENV_LEVEL
 
-
 SUS_FASE:
   ldd XH,Y+SUS
   sub r17,XH
@@ -211,15 +200,11 @@ DO_SUS_DEC:
   std Y+LEVEL,r16
   rjmp ENV_LEVEL
 
-
-
 STOP_TONE:
   clr r17
   std Y+SIN_STEPL,r17
   std Y+SIN_STEPH,r17 
   rjmp ENV_LEVEL
-
-  
 
 DO_ATK_INC:
   ldi r17,250
@@ -231,7 +216,6 @@ DO_ATK_INC:
   ldi r17,F_DECY       // set decay fase
   std Y+ENV_STATE,r17
   rjmp ENV_LEVEL
-
   
 ATK_FASE:
   ldd XH,Y+ATK
@@ -239,7 +223,6 @@ ATK_FASE:
   brcs DO_ATK_INC
   std Y + ENV_CNT,r17
 //  rjmp ENV_LEVEL    //このrjmpを減らすのに一番効果のあるのはAtkのここ
-  
 
 ENV_LEVEL:  
   subi CHANNEL_OUT,(-31);
@@ -253,7 +236,32 @@ ENV_LEVEL:
   sbci ZH,hi8(-(conv_vol))
   lpm CHANNEL_OUT,Z 
 
+/* cliping output level if signed 8bit overflow */
+#ifdef CLIP
+  sbrc TOTAL_OUT,7
+  rjmp IF_MINUS
+  
+IF_PLUS:
   add TOTAL_OUT,CHANNEL_OUT
+  sbrc CHANNEL_OUT,7
+  rjmp END_CLIP
+  
+  sbrc TOTAL_OUT,7
+  ldi TOTAL_OUT,127
+  rjmp END_CLIP
+  
+IF_MINUS:
+  add TOTAL_OUT,CHANNEL_OUT
+  sbrs CHANNEL_OUT,7
+  rjmp END_CLIP
+  
+  sbrs TOTAL_OUT,7  
+  ldi  TOTAL_OUT,(-127)
+
+END_CLIP:
+#else
+  add TOTAL_OUT,CHANNEL_OUT
+#endif
 
     subi YL,lo8(-(SIZEOF_MEMTONE))
     sbci YH,hi8(-(SIZEOF_MEMTONE))
