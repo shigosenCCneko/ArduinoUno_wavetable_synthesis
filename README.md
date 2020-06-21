@@ -42,10 +42,10 @@ Timer0を使用するとdelay()等の時間管理が使えなくなります
 
 #### ENVTONE.setup_hardware()
     タイマ等ハードウェアの設定
-#### ENVTONE.midistate(midi type)
+#### ENVTONE.midistate(miditype)
     miditype:  
             MIDI_POLY  MIDIチャンネル1 4音ポリフォニックモード
-            MIDI_MONO  MIDIチャンネル1～4　モノフォニックモード
+            MIDI_MONO  MIDIチャンネル1～4 モノフォニックモード
 #### ENVTONE.midi_setwafe(wavetype)
     wavetype:
             SIN     sin波
@@ -56,10 +56,10 @@ Timer0を使用するとdelay()等の時間管理が使えなくなります
 
     *波形データはenvtone.cppでcharの64byteの配列に置いていますので
     　適当なデータに置き換えて鳴らせます。
-#### ENVTONE.midi_setenvelope(atk,decey,sustai level,sutain,release)
-    ポリフォニックモード用に４ｃｈすべてのエンベロープを設定します
+#### ENVTONE.midi_setenvelope(atk, decey, sustain level, sutain, release)
+    ポリフォニックモード用に4chすべてのエンベロープを設定します
 
-#### ENVTONE.set_wave(ch,wavetpe)
+#### ENVTONE.set_wave(ch,wavetype)
     指定chにwavetypeを設定
 
 #### ENVTONE..midi_command(com, dat1, dat2, dat3)
@@ -70,9 +70,9 @@ Timer0を使用するとdelay()等の時間管理が使えなくなります
 
 ### チャンネル指定
 
-#### ENVTONE.set_envelope(ch,atk,decey,sustai level,sutain,release)
+#### ENVTONE.set_envelope(ch, atk, decey, sustain level, sutain, release)
     指定chにエンヴェロープを設定
-#### ENVTONE.note_on(ch,note no,vel)
+#### ENVTONE.note_on(ch, note no, vel)
     チャンネル指定NOTE_ON
 #### ENVTONE.note_off(ch)
     チャンネル指定NOTE_OFF
