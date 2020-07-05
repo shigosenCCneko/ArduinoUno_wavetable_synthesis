@@ -5,17 +5,16 @@
 * 4以上の発音数を指定するとoverflowした時に雑音が出ます
 * CLIPを指定時発音数が1～2減少します
 */
-#define MAX_TONE 5
-
+#define MAX_TONE  6
 /*
  * USE_32KZ  32KHzで使用するときはコメントアウトを外してください
  */
-//#define USE_32KHZ
+#define USE_32KHZ
 
 /*
  *   CLIP 波形加算時overflowした時時最大値にCLIPします
  */
-//#define CLIP
+#define CLIP
 
 /*
  * PWM_PIN 出力PINの選択  3,5,6,11
@@ -28,4 +27,4 @@
  *      delay()等のTimer0を使った時間管理が出来なくなります
  *       
  */
- #define PWM_PIN    6
+ #define PWM_PIN    11

@@ -7,14 +7,14 @@ char usart_read(void);
   
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200);
+  Serial.begin(19200);
 // Serial.begin(2000000);
   ENVTONE.setup_hardware();
-  ENVTONE.set_midistate(MIDI_POLY);    //４声ポリフォニック
+  ENVTONE.set_midistate(MIDI_POLY);    //声ポリフォニック
   ENVTONE.midi_setwave(FM2OP2);        //
   ENVTONE.midi_set_envelope(12,9,25,2,8);  
   
-//  ENVTONE.set_midistate(MIDI_MONO);     //4chモノフォニック
+//  ENVTONE.set_midistate(MIDI_MONO);     //モノフォニック
 //  ENVTONE.set_wave(1,TRI);              //ch1を三角波へ
 //  ENVTONE.set_wave(2,TRI);
 //  ENVTONE.set_wave(3,SIN);

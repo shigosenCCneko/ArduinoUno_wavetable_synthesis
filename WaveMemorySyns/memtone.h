@@ -17,6 +17,7 @@ private:
     uint8_t rel;
     uint8_t level;
     uint16_t wave_tbl;
+    uint8_t env_step;
 
 public:
     MemTone();

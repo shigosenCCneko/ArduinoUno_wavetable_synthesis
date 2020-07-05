@@ -31,8 +31,9 @@
 #define LEVEL 12
 #define WAVE_TBLL 13
 #define WAVE_TBLH 14
+#define ENV_STEP  15
 
-#define SIZEOF_MEMTONE 15
+#define SIZEOF_MEMTONE 16
 
 #define F_ATK  1
 #define F_DECY 2
@@ -78,11 +79,11 @@ TIMER1_COMPA_vect:
  ldi XL,MAX_TONE - 1     ;loop conter
  clr TOTAL_OUT
  lds r20,wait_cnt
- 
+inc r20 
 #ifdef USE_32KHZ
-  subi r20,32
+  andi r20,0x0f
 #else
-  subi r20,64
+  andi r20,0x0f
 #endif
   sts wait_cnt,r20
 //
@@ -110,69 +111,46 @@ loop:
   
   //ld CHANNEL_OUT,Z
   lpm CHANNEL_OUT,Z         //波形をPROGMEMで置いている場合
-    
-  // volume
-  subi CHANNEL_OUT,(-31)
-  ldi ZL,64                 //計算簡素化のため conv_volを[63][32]から[64][32]に変更した
-  ldd  r16, Y + VOL
-  muls r16,ZL
-  movw ZL,r0
-  //clr r0
-  add ZL,CHANNEL_OUT
-  //adc ZH,r0
-  subi ZL,lo8(-(conv_vol ))
-  sbci ZH,hi8(-(conv_vol ))
-  lpm CHANNEL_OUT,Z
+
 
 //------- envelope   --- r16  level  r17 env_cnt  ----------------------
   ldd r16,Y + LEVEL
-   cpi r20,(0)
+   cp r20,XL
    breq DO_ENVCHG
    rjmp ENV_LEVEL   
   
 DO_ENVCHG:
 
   ldd r17,Y + ENV_CNT
-  ldd XH,Y + ENV_STATE    //memtone[XL].env_state
+  ldd XH,Y + ENV_STEP
+  sub r17,XH
+  brcs DO_ENVSTEP
+  std Y + ENV_CNT , r17
+  rjmp ENV_LEVEL
+
+DO_ENVSTEP:
+  ldd XH,Y + ENV_STATE
   
-  cpi XH,F_ATK
+  cpi XH, F_ATK
   breq ATK_FASE
-  
-  cpi XH,F_DECY
+
+  cpi XH, F_DECY
   breq DECY_FASE
-  
+
   cpi XH,F_SUS
   breq SUS_FASE
   
-//  cpi XH,F_REL
-//  breq REL_FASE
-//  rjmp ENV_LEVEL
-
+  
 REL_FASE:
-  ldd XH,Y+REL
-  sub r17,XH
-  brcs DO_REL_DEC
-  std Y+ENV_CNT,r17
-  rjmp ENV_LEVEL
-
-DO_REL_DEC:           
   ldi r17,250
   std Y+ENV_CNT,r17
   cpi r16,(0)
-  breq STOP_TONE 
+  breq STOP_TONE
   dec r16
   std Y+LEVEL,r16
-  sbi 11,2
-  rjmp ENV_LEVEL  
-  
-DECY_FASE:
-  ldd XH,Y+DECY
-  sub r17,XH
-  brcs DO_DECY_DEC
-  std Y+ENV_CNT,r17
   rjmp ENV_LEVEL
 
-DO_DECY_DEC:
+ DECY_FASE:
   ldi r17,250
   std Y+ENV_CNT,r17
   dec r16
@@ -182,23 +160,18 @@ DO_DECY_DEC:
   brne ENV_LEVEL
   ldi r17,F_SUS         //set sustain fase
   std Y+ENV_STATE,r17
+  ldd XH,Y + SUS
+  std Y + ENV_STEP,XH
   rjmp ENV_LEVEL
 
 SUS_FASE:
-  ldd XH,Y+SUS
-  sub r17,XH
-  brcs DO_SUS_DEC
-  std Y+ENV_CNT,r17
-  rjmp ENV_LEVEL
-
-DO_SUS_DEC:
   ldi r17,250
   std Y+ENV_CNT,r17
   cpi r16,(0)
   breq STOP_TONE 
   dec r16
   std Y+LEVEL,r16
-  rjmp ENV_LEVEL
+  rjmp ENV_LEVEL 
 
 STOP_TONE:
   clr r17
@@ -206,35 +179,37 @@ STOP_TONE:
   std Y+SIN_STEPH,r17 
   rjmp ENV_LEVEL
 
-DO_ATK_INC:
+
+ATK_FASE:
   ldi r17,250
   std Y+ENV_CNT,r17
   inc r16
   std Y+LEVEL,r16
   cpi r16,(31)
   brne ENV_LEVEL
-  ldi r17,F_DECY       // set decay fase
+ ldi r17,F_DECY       // set decay fase
   std Y+ENV_STATE,r17
-  rjmp ENV_LEVEL
-  
-ATK_FASE:
-  ldd XH,Y+ATK
-  sub r17,XH
-  brcs DO_ATK_INC
-  std Y + ENV_CNT,r17
-//  rjmp ENV_LEVEL    //このrjmpを減らすのに一番効果のあるのはAtkのここ
+  ldd XH,Y + DECY
+  std Y + ENV_STEP,XH
+//  rjmp ENV_LEVEL
+
+
 
 ENV_LEVEL:  
-  subi CHANNEL_OUT,(-31);
-  ldi ZL,64
-  mul r16,ZL
-  movw ZL,r0
-  //clr r0
-  add ZL,CHANNEL_OUT
-  //adc ZH,r0
-  subi ZL,lo8(-(conv_vol))
-  sbci ZH,hi8(-(conv_vol))
-  lpm CHANNEL_OUT,Z 
+
+ldd XH,Y + VOL
+inc r16
+inc XH
+lsl XH
+mul r16,XH
+movw ZL,r0
+subi ZL,lo8(-(conv_vol -2))
+sbci ZH,hi8(-(conv_vol -2))
+andi ZL,0xc0              //int()
+
+subi CHANNEL_OUT,(-31)
+add ZL,CHANNEL_OUT
+lpm CHANNEL_OUT,Z 
 
 /* cliping output level if signed 8bit overflow */
 #ifdef CLIP
@@ -314,6 +289,7 @@ endloop:
 
 
 // 除算テーブル
+.balign 64         //データを64byte境界に置いてアドレス計算を簡素化
 .global conv_vol   //アドレス計算高速化の為 conv_vol[64][32]
 conv_vol: 
 .dc.b    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,0

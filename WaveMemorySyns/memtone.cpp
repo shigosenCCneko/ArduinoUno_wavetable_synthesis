@@ -32,12 +32,14 @@ static MemTone::tone_on( int tone, int vol) {
   this->vol = vol & 0x1f;
   this->env_cnt = 249;
   this->level = 0;
+  this->env_step = this->atk;
 
 
 }
 
 MemTone::tone_off() {
   this->env_state = 4;
+  this->env_step = this->rel;
 
 }
 
