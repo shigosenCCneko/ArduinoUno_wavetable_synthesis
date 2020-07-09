@@ -42,6 +42,7 @@
 
 #define TOTAL_OUT r18
 #define CHANNEL_OUT r19
+#define ZERO r21
 
 .section .data
 wait_cnt: .dc.b  0        //エンベロープのウェイト用カウンタ
@@ -68,6 +69,9 @@ TIMER1_COMPA_vect:
   push TOTAL_OUT
   push CHANNEL_OUT
   push r20
+  push r21
+
+  clr r21
 
 
 #ifdef USE_DAC
@@ -102,12 +106,12 @@ loop:
   std Y + SIN_POSH, ZL
   std Y + SIN_POSL, ZH
 
-  clr ZH                  //Read sin table from tone pointer
+//  clr ZH                  //Read sin table from tone pointer
 
   ldd r16,Y+WAVE_TBLL
-  ldd r17,Y+WAVE_TBLH
+  ldd ZH,Y+WAVE_TBLH
   add ZL,r16
-  adc ZH,r17
+  adc ZH,ZERO
   
   //ld CHANNEL_OUT,Z
   lpm CHANNEL_OUT,Z         //波形をPROGMEMで置いている場合
@@ -116,8 +120,7 @@ loop:
 //------- envelope   --- r16  level  r17 env_cnt  ----------------------
   ldd r16,Y + LEVEL
    cp r20,XL
-   breq DO_ENVCHG
-   rjmp ENV_LEVEL   
+   brne ENV_LEVEL
   
 DO_ENVCHG:
 
@@ -130,6 +133,8 @@ DO_ENVCHG:
 
 DO_ENVSTEP:
   ldd XH,Y + ENV_STATE
+  ldi r17,250
+  std Y+ENV_CNT,r17
   
   cpi XH, F_ATK
   breq ATK_FASE
@@ -142,8 +147,6 @@ DO_ENVSTEP:
   
   
 REL_FASE:
-  ldi r17,250
-  std Y+ENV_CNT,r17
   cpi r16,(0)
   breq STOP_TONE
   dec r16
@@ -151,8 +154,6 @@ REL_FASE:
   rjmp ENV_LEVEL
 
  DECY_FASE:
-  ldi r17,250
-  std Y+ENV_CNT,r17
   dec r16
   std Y+LEVEL,r16
   ldd XH,Y+SUL   //compare sustain level
@@ -165,8 +166,6 @@ REL_FASE:
   rjmp ENV_LEVEL
 
 SUS_FASE:
-  ldi r17,250
-  std Y+ENV_CNT,r17
   cpi r16,(0)
   breq STOP_TONE 
   dec r16
@@ -174,15 +173,12 @@ SUS_FASE:
   rjmp ENV_LEVEL 
 
 STOP_TONE:
-  clr r17
-  std Y+SIN_STEPL,r17
-  std Y+SIN_STEPH,r17 
+  std Y+SIN_STEPL,ZERO
+  std Y+SIN_STEPH,ZERO
   rjmp ENV_LEVEL
 
 
 ATK_FASE:
-  ldi r17,250
-  std Y+ENV_CNT,r17
   inc r16
   std Y+LEVEL,r16
   cpi r16,(31)
@@ -191,7 +187,7 @@ ATK_FASE:
   std Y+ENV_STATE,r17
   ldd XH,Y + DECY
   std Y + ENV_STEP,XH
-//  rjmp ENV_LEVEL
+
 
 
 
@@ -264,6 +260,7 @@ endloop:
   sts OCR0A, TOTAL_OUT
 #endif
 
+  pop r21
   pop r20
   pop CHANNEL_OUT
   pop TOTAL_OUT
