@@ -1,16 +1,17 @@
 /* 
 *  MAX_TONE 発音数 
-* 16KHZで12
-* 32KHzなら6～7
+* 
+* 34KHzなら8
 * 4以上の発音数を指定するとoverflowした時に雑音が出ます
 * CLIPを指定時発音数が1～2減少します
 */
-#define MAX_TONE  6
-/*
- * USE_32KZ  32KHzで使用するときはコメントアウトを外してください
- */
-#define USE_32KHZ
+#define MAX_TONE 8
 
+/*
+ * PWM_KHZ  サンプリング周波数 24ぐらいで十分な音質になります
+ */
+
+#define PWM_KHZ  24
 /*
  *   CLIP 波形加算時overflowした時時最大値にCLIPします
  */
@@ -27,4 +28,15 @@
  *      delay()等のTimer0を使った時間管理が出来なくなります
  *       
  */
- #define PWM_PIN    11
+ #define PWM_PIN    3
+ 
+  /*
+  *  USE_ECHO   エコー使用
+  * 
+  *  BUF_SIZE   エコーバッファのサイズ
+  *  ECHO_MUL   エコーの減衰  ECHO_MUL/256
+  */
+//#define USE_ECHO
+
+#define BUF_SIZE 500    //500to 1500
+#define ECHO_MUL 108
